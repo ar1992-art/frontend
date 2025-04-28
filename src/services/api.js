@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://site--backend--wwcs7tcpkv46.code.run/api/',
+  baseURL: 'http://localhost:8000/api',
   headers: { 'Content-Type': 'application/json' },
 });
 

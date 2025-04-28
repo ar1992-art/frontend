@@ -14,7 +14,6 @@ export default function Dashboard() {
   const [cases, setCases] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch case studies on mount
   useEffect(() => {
     if (!user) {
       navigate('/login');
@@ -22,19 +21,32 @@ export default function Dashboard() {
     }
     API.get('case-studies/')
       .then(res => setCases(res.data))
-      .catch(err => {
-        console.error('Failed to load case studies:', err);
-      });
+      .catch(err => console.error('Failed to load case studies:', err));
   }, [user, navigate]);
 
   if (!user) return null;
 
   return (
-    <div className={`${className} min-h-screen p-6`}>
+    <div className={`${className} min-h-screen p-6 space-y-6`}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
-        <h1 className="text-3xl font-bold mb-4 sm:mb-0">Dashboard</h1>
-        <div className="flex space-x-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+        <div className="space-y-2">
+          <h2 className="text-xl">Welcome, <span className="font-semibold">{user.username}</span>!</h2>
+          <h1 className="text-3xl font-bold">Your Dashboard</h1>
+        </div>
+        <div className="flex space-x-3 mt-4 sm:mt-0">
+          <Link
+            to="/"
+            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          >
+            Home
+          </Link>
+          <Link
+            to="/dashboard/analytics"
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            Analytics
+          </Link>
           <button
             onClick={() => {
               logout();
@@ -44,20 +56,14 @@ export default function Dashboard() {
           >
             Logout
           </button>
-          <Link
-            to="/dashboard/analytics"
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Analytics
-          </Link>
         </div>
       </div>
 
-      {/* Theme selector */}
+      {/* Theme Selector */}
       <ThemeSelector />
 
       {/* Create New Case Study */}
-      <div className="mb-6">
+      <div>
         <Link
           to="/dashboard/edit/new"
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -66,20 +72,27 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      {/* List of Case Studies with Edit buttons */}
+      {/* Case Study List */}
       {cases.length === 0 ? (
-        <p className="text-gray-500">No case studies yet. Create one above!</p>
+        <p className="text-gray-500">
+          You haven’t created any case studies yet.{' '}
+          <Link to="/dashboard/edit/new" className="underline text-blue-600 hover:text-blue-800">
+            Create your first one!
+          </Link>
+        </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cases.map(cs => (
             <div key={cs.id} className="flex flex-col">
-              <CaseStudyCard study={cs} username={user.username} />
-              <Link
-                to={`/dashboard/edit/${cs.id}`}
-                className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-center"
-              >
-                Edit
-              </Link>
+              <CaseStudyCard study={cs} username={cs.owner_username} />
+              {cs.owner_username === user.username && (
+                <Link
+                  to={`/dashboard/edit/${cs.id}`}
+                  className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded text-center hover:bg-yellow-600"
+                >
+                  Edit
+                </Link>
+              )}
             </div>
           ))}
         </div>
